@@ -1,0 +1,20 @@
+Metadata-Version: 2.1
+Name: pipinstaller
+Version: 0.1
+Summary: A package to install banch of  packages from a pypi.org .
+Author: Souporno Chakraborty
+Author-email: shrabanichakraborty83@gmail.com
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: requests
+
+# My Package
+
+A package to install banch of  packages from a pypi.org .
+
+## Installation
+
+You can install this package using pip:
+
+```bash
+pip install my_package

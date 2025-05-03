@@ -1,0 +1,2 @@
+[console_scripts]
+metelTest = main:main

@@ -1,0 +1,2 @@
+[console_scripts]
+install-from-requirements = pipinstaller.pipinstaller:install_from_requirements
