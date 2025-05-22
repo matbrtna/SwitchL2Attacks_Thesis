@@ -1,11 +1,19 @@
-import json
+
 import requests
 from datetime import datetime
-import re
 import sys
-from bs4 import BeautifulSoup
+# from bs4 import BeautifulSoup
 import utils
 import time
+import os
+
+APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+
+CONFIG_PATH       = os.path.join(APP_ROOT, "config.json")
+CAPTURES_DIR      = os.path.join(APP_ROOT, "captures")
+TEST_CONFIGS_DIR  = os.path.join(APP_ROOT, "test_configs")
+TEST_RESULTS_DIR  = os.path.join(APP_ROOT, "test_results")
+
 
 
 class F_Tester:
@@ -43,6 +51,38 @@ class F_Tester:
         last_test_overview=sorted_tests[-1]
         return last_test_overview
         
+
+    def getLastTest(self):
+        last_test_overview=self.getLastTestOverview()
+        las_test_id=self.getTestIdFromOverview(last_test_overview)
+        last_test=self.getTestResult(las_test_id)
+        return last_test
+    
+    def getLastTcpSpeedTest(self):
+        last_test_overview=self.getLastTestOverview()
+        last_test_id=self.getTestIdFromOverview(last_test_overview)
+        url_client2="client-2.iperf3.gz&scenario="+last_test_id
+        url_client1="client-1.iperf3.gz&scenario="+last_test_id
+        last_test_us=self.getTestResult(url_client1)
+        last_test_ds=self.getTestResult(url_client2)
+        return last_test_us,last_test_ds   
+    
+    def getLastFlowPingTest(self):
+        last_test_overview=self.getLastTestOverview()
+        las_test_id=self.getTestIdFromOverview(last_test_overview)
+        url="client-1.flowping.gz&scenario="+las_test_id
+        # print(url)
+        last_test=self.getTestResult(url)
+        return last_test
+    
+    def getLastUdpTrottlingTest(self):
+        last_test_overview=self.getLastTestOverview()
+        last_test_id=self.getTestIdFromOverview(last_test_overview)
+        url_client2="client-2.iperf3.gz&scenario="+last_test_id
+        url_client1="client-1.iperf3.gz&scenario="+last_test_id
+        last_test_us=self.getTestResult(url_client1)
+        last_test_ds=self.getTestResult(url_client2)
+        return last_test_us,last_test_ds   
         
     def getSortedTests(self):
         tests=self.getResults()
@@ -55,22 +95,23 @@ class F_Tester:
     def getTestResult(self,name):
         url="http://"+self.ip+"/cgi-bin/luci/ftplanner/file?file=127.0.0.1/"+name+"&archive=false"
         response=requests.get(url,verify=False)
-        return response
+        return response.json()
     
-    def execute(self,test_scenario):
-        url="http://"+self.ip+"/cgi-bin/luci/ftplanner/execute"
-        response = requests.post(url, json=test_scenario,verify=False)
-        return response
+    # def execute(self,test_scenario):
+    #     url="http://"+self.ip+"/cgi-bin/luci/ftplanner/execute"
+    #     response = requests.post(url, json=test_scenario,verify=False)
+    #     return response
 
 
     def getTestIdFromOverview(self,test):
         return test['uid']
     
     def startTest(self,name):
-        request_body=utils.readJSON("test_configs/"+name)
+        request_path = os.path.join(TEST_CONFIGS_DIR, name)
+        request_body = utils.readJSON(request_path)
         current_time = int(time.time())
 
-# Nastavíme "now" na aktuální čas a "start" o 10 sekund později
+
         request_body['now'] = current_time
         request_body['start'] = current_time + 10
         url="http://"+self.ip+"/cgi-bin/luci/ftplanner/execute"
@@ -78,8 +119,8 @@ class F_Tester:
         try:
             response = requests.post(url, json=request_body, headers=headers)
             if response.status_code == 200:
-                print("TCP scenario successfully started ")
-                # print("Odpověď: ", response.json())
+                print("Scenario successfully started on F-Tester")
+         
             else:
                 print("Error while starting the scenario: ", response.status_code)
                 print("Response: ", response.text)
@@ -88,11 +129,8 @@ class F_Tester:
             print("There was error while sending the request to tester: ", e)
             sys.exit(1)
         return response
-        
 
-class TestResult:
-    def __init__(self,id):
-        self.id=id
+
     
 
 
@@ -100,6 +138,7 @@ class TestResult:
 
 # tester=F_Tester("192.168.0.201")
 # test_overview=tester.getLastTestOverview()
+# print(test_overview)
 # testId=tester.getTestIdFromOverview(test_overview)
 # test=requests.get("http://192.168.0.201/cgi-bin/luci/ftplanner/file?file=127.0.0.1/client-1.iperf3.gz&scenario=UDP-20250422195637-1745344906&archive=false",verify=False)
 # print(test.json())

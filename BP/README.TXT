@@ -1,1 +1,0 @@
-Pro instalaci staci spustit prikaz "sudo python3 build_metelTest.py"

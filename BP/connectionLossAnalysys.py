@@ -1,14 +1,15 @@
 import pandas as pd
 import utils
+import time
 # test_results/preruseni.csv
 
 
 
 
 
-# def readCSV(name):
-#     df = pd.read_csv("test_results/"+name, sep=";")
-#     return df
+def readCSV(name):
+    df = pd.read_csv("test_results/"+name, sep=";")
+    return df
 
 
 def findLoss(file):
@@ -41,8 +42,9 @@ def getConnectionLossResult(timeUnconnected):
         print("Time is less than 30ms, test was succesfull")
 
 
-def evaulateTestFromJSON(name):
+def evaulateTestFromJSON():
     # csv=utils.readCSV(name)
+    name="test-1.flowping"
     file=utils.readJSON("test_results/"+name)
     loss=findLoss(file)
     non_zero_values=getNonZeroValues(loss)
@@ -51,8 +53,32 @@ def evaulateTestFromJSON(name):
     result=getConnectionLossResult(lost_in_ms)
 
 
+def getResult():
+    try:
+        test_name="connectionLoss.json"
+        tester=utils.buildTester()
+        tester.startTest(test_name)
+        print("Waiting for end of the test")
+        sleep_time=utils.getTestDuration(test_name)+30
+        time.sleep(sleep_time)
+        result=tester.getLastFlowPingTest()
+        # print(result)
+        loss=findLoss(result)
+        non_zero_values=getNonZeroValues(loss)
+        sum=sumarizeValues(non_zero_values)
+        lost_in_ms=convertToMS(sum)
+        getConnectionLossResult(lost_in_ms)
+    except KeyboardInterrupt:
+        print("")
+        print("Test was interrupted by user")
+    except Exception as e:
+        print(f"Unexpected error during test: {e}")
 
-evaulateTestFromJSON("test-1.flowping")
+
+
+# getResult()
+
+# evaulateTestFromJSON("test-1.flowping")
 
 
 

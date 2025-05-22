@@ -1,17 +1,20 @@
-import pandas as pd
+# import pandas as pd
 import json
 import sys
+import netifaces
+import fTester
 
-def readCSV(name):
-    df = pd.read_csv(name, sep=";")
-    return df
+# def readCSV(name):
+#     df = pd.read_csv(name, sep=";")
+#     return df
 
 def findColumnValues(file,name):
     values = file[name].dropna()
     return values
 
-def findColumn(csv, name):
-    result = csv[csv["jmeno"] == "Eva"]
+def findColumn(csv, name,value):
+    result = csv[csv[name] ==value]
+    return result
 
 
 def readJSON(name):
@@ -26,26 +29,52 @@ def findJSONColumn(file,columnName):
         if "loss" in entry:
             loss_value = entry[columnName]
             values.append(loss_value)
-            # print(f"Seq {entry['seq']}: loss = {loss_value}")
-            # if loss_value > 0:
-            #     print("  ⚠️  Ztráta paketů detekována!")
     if len(values)>0:
         # print(values)
         return values
     else:
-        print("Hodnota loss nebyla v tabulce nalezena, zkontrolujte ze zapinate spravny test")
+        print("Values column was not found in test result, check if right test was started")
         sys.exit(1)
 
 
-class ConfReader:
-    def __init__(self,name):
-        self.name=name
-        
 
-    def open(self):
-        with open(self.name, 'r') as f:
-            self.file = json.load(f)
-            print("Config file: "+ self.name + " loaded")
-    
-    def read(self,name):
-        return self.file[name]
+def get_ip_address(interface):
+    try:
+        addresses = netifaces.ifaddresses(interface)
+        ip_info = addresses.get(netifaces.AF_INET)
+        if ip_info:
+            return ip_info[0]['addr']
+        else:
+            return None
+    except ValueError:
+        print("Non existing interface selected")
+        sys.exit(1)
+        return None
+
+
+def getInterface(config_path):
+    config = readJSON(config_path)
+    return config["interface"]
+
+def getTesterIp(config_path):
+    config = readJSON(config_path)
+    return config["tester_ip"]
+
+def getSwitchIp(config_path):
+    config = readJSON(config_path)
+    return config["switch_ip"]
+
+def buildTester(config_path):
+    config = readJSON(config_path)
+    return fTester.F_Tester(config["tester_ip"], config["tester_name"])
+
+
+def getTestDuration(test):
+    test="test_configs/"+test
+    test_config=readJSON(test)
+    total_duration = test_config.get("duration", 0)
+    return total_duration
+
+# print(getTestDuration("test_configs/tcp100.json"))
+
+

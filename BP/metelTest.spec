@@ -5,7 +5,7 @@ a = Analysis(
     ['/home/brtnamat/Desktop/FEL/5_semestr/BP/main.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('config.json', '.'), ('captures', 'captures'), ('test_configs', 'test_configs'), ('test_results', 'test_results')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

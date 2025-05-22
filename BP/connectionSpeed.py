@@ -1,5 +1,5 @@
 import utils
-
+import time
 
 def getTestUS():
     return utils.readJSON("test_results/maxSpeedUS.json")
@@ -25,9 +25,9 @@ def convertToMb(speed):
     return speed/1000000
 
 
-def getResultUS():
+def getResultUS(test):
     print("TCP Upstreeam:")
-    test=getTestUS()
+    # test=getTestUS()
     speeed_list=getSpeedList(test)
     avarage=convertToMb(getAvarage(speeed_list))
     max=convertToMb(getMax(speeed_list))
@@ -40,9 +40,9 @@ def getResultUS():
     print("\n")
 
 
-def getResultDS():
+def getResultDS(test):
     print("TCP Downstream:")
-    test=getTestDS()
+    # test=getTestDS()
     speeed_list=getSpeedList(test)
     avarage=convertToMb(getAvarage(speeed_list))
     max=convertToMb(getMax(speeed_list))
@@ -53,5 +53,24 @@ def getResultDS():
     else:
         print("Test was successfull")
 
-getResultUS()
-getResultDS()
+
+def getResult():
+    test_name="connectionSpeed.json"
+    try:
+        tester=utils.buildTester()
+        tester.startTest(test_name)
+        print("Waiting for end of the test")
+        sleep_time=utils.getTestDuration(test_name)+30
+        time.sleep(sleep_time)
+        test_result_us,test_result_ds=tester.getLastTcpSpeedTest()
+        getResultUS(test_result_us)
+        getResultDS(test_result_ds)
+    except KeyboardInterrupt:
+        print("")
+        print("Test was interrupted by user")
+    except Exception as e:
+        print(f"Unexpected error during test: {e}")
+
+
+
+# getResult()
