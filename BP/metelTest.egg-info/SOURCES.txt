@@ -1,8 +1,0 @@
-main.py
-setup.py
-metelTest.egg-info/PKG-INFO
-metelTest.egg-info/SOURCES.txt
-metelTest.egg-info/dependency_links.txt
-metelTest.egg-info/entry_points.txt
-metelTest.egg-info/requires.txt
-metelTest.egg-info/top_level.txt

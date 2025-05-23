@@ -1,0 +1,81 @@
+import pandas as pd
+import utils
+import time
+# test_results/preruseni.csv
+
+
+
+
+
+def readCSV(name):
+    df = pd.read_csv("test_results/"+name, sep=";")
+    return df
+
+
+def findLoss(file):
+    loss=utils.findJSONColumn(file,"loss")
+    # print(loss)
+    # print(loss)
+    return loss
+
+
+def getNonZeroValues(values):
+    non_zero_values = [v for v in values if v != 0]
+    return non_zero_values
+
+def sumarizeValues(values):
+    total = sum(values)
+    return total
+
+def convertToMS(percents):
+    timeInMS=percents*10
+    return timeInMS
+
+
+def getConnectionLossResult(timeUnconnected):
+    print("Device lost connection for: "+ str(timeUnconnected)+" ms")
+    if timeUnconnected>30:
+        print("Time is more than 30ms, test was unsuccesfull")
+    elif timeUnconnected==0:
+        print("Connection was not broken, check if you unconnected right path")
+    else:
+        print("Time is less than 30ms, test was succesfull")
+
+
+def evaulateTestFromJSON():
+    
+    name="test-1.flowping"
+    file=utils.readJSON("test_results/"+name)
+    loss=findLoss(file)
+    non_zero_values=getNonZeroValues(loss)
+    sum=sumarizeValues(non_zero_values)
+    lost_in_ms=convertToMS(sum)
+    result=getConnectionLossResult(lost_in_ms)
+
+
+def getResult():
+    try:
+        test_name="connectionLoss.json"
+        tester=utils.buildTester()
+        tester.startTest(test_name)
+        print("Waiting for end of the test")
+        sleep_time=utils.getTestDuration(test_name)+30
+        time.sleep(sleep_time)
+        result=tester.getLastFlowPingTest()
+        # print(result)
+        loss=findLoss(result)
+        non_zero_values=getNonZeroValues(loss)
+        sum=sumarizeValues(non_zero_values)
+        lost_in_ms=convertToMS(sum)
+        getConnectionLossResult(lost_in_ms)
+    except KeyboardInterrupt:
+        print("")
+        print("Test was interrupted by user")
+    except Exception as e:
+        print(f"Unexpected error during test: {e}")
+
+
+
+
+
+
