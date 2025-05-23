@@ -19,7 +19,7 @@ Pro spuštění nainstalovaného projektu stačí do CLI zadat "metelTest" a ná
 
 ## Struktura projektu
 
-.
+.  
 ├── test_configs/               - Konfigurační soubory pro jednotlivé testy  
 ├── test_results/               - Stažené výsledky z F-Testerů pro testování aplikace  
 ├── unit_tests/                 - Jednotkové testy (např. pro connectionSpeed.py)  
