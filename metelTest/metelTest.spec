@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['/home/brtnamat/Desktop/FEL/5_semestr/metelTest/main.py'],
+    ['main.py'],
     pathex=[],
     binaries=[],
     datas=[('config.json', '.'), ('captures', 'captures'), ('test_configs', 'test_configs'), ('test_results', 'test_results')],
