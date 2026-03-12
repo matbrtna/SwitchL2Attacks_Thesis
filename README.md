@@ -26,6 +26,7 @@ To run the installed project, simply enter metelTest into your CLI followed by t
 -h Displays this help message. 
 
 ## Project structure
+```text
 .
 ├── test_configs/               - Configuration files for individual tests
 ├── test_results/               - Results downloaded from F-Testers
@@ -47,3 +48,4 @@ To run the installed project, simply enter metelTest into your CLI followed by t
 ├── setup.py                    - Python package installation (optional)
 ├── utils.py                    - Utility and helper functions
 └── vlanTest.py                 - VLAN behavior test (not yet implemented)
+```
