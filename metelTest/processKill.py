@@ -1,6 +1,4 @@
 import subprocess
-import os
-import signal
 
 def kill_process_by_name(name):
     try:

@@ -1,6 +1,8 @@
 import subprocess
-from utils import get_ip_address
 import os
+import signal
+
+from utils import get_ip_address
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 
@@ -14,14 +16,16 @@ def runMacof(interface):
     try:
         process = subprocess.Popen(
             ["sudo", "macof", "-i", interface],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            universal_newlines=True
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            preexec_fn=os.setsid,
         )
         print(f"Macof started on interface {interface} (PID: {process.pid})")
         return process
     except Exception as e:
         print(f"Error while starting macof: {e}")
+        return None
+
 
 def runTCPDump(interface, output_file):
     own_ip = get_ip_address(interface)
@@ -34,8 +38,24 @@ def runTCPDump(interface, output_file):
             "not", "src", own_ip, "and", "not", "dst", own_ip,
             "-w", output_path
         ],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        preexec_fn=os.setsid,
     )
     print(f"Tcpdump started on interface {interface} (PID: {process.pid})")
     return process
+
+
+def terminate_process(proc, name="process"):
+    """Terminate a subprocess and its entire process group."""
+    if proc is None:
+        return
+    try:
+        os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
+        proc.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+        proc.wait()
+    except ProcessLookupError:
+        pass
+    print(f"{name} ended")

@@ -1,6 +1,4 @@
-import subprocess
 import time
-import signal
 from scapy.all import rdpcap, IP, ARP
 from fTester import F_Tester
 import processes
@@ -26,21 +24,13 @@ def macFlood(interface, client, time_length):
         tester.startTest("connectionSpeed.json")
         time.sleep(time_length)
     except KeyboardInterrupt:
-        print("\n Proces was interupted by user")
+        print("\nProcess was interrupted by user")
     except Exception as e:
         print(f"Unexpected error during test: {e}")
     finally:
         print("Terminating processes")
-        if macof:
-            macof.terminate()
-            print("Macof ended")
-        if tcpdump:
-            try:
-                tcpdump.send_signal(signal.SIGINT)
-                tcpdump.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                tcpdump.kill()
-            print("Tcpdump ended")
+        processes.terminate_process(macof, "Macof")
+        processes.terminate_process(tcpdump, "Tcpdump")
 
 def readPcapFiltered(filename):
     packets = rdpcap(filename)
