@@ -1,8 +1,6 @@
-from scapy.layers.l2 import getmacbyip
-from scapy.layers.l2 import Ether, Dot1Q, LLC,STP
+from scapy.layers.l2 import Ether, LLC, STP
 from scapy.all import *
 import processes
-import signal
 from fTester import F_Tester
 
 # iface = "enx1c860b27ed4b"
@@ -76,24 +74,19 @@ def runRstpAttack(interface, client):
         tester.startTest("connectionSpeed.json")
         test(interface)
     except KeyboardInterrupt:
-        print("\n Proces was interupted by user")
+        print("\nProcess was interrupted by user")
     except Exception as e:
         print(f"Unexpected error during test: {e}")
     finally:
         print("Terminating tcpdump")
-        if tcpdump:
-            try:
-                tcpdump.send_signal(signal.SIGINT)
-                tcpdump.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                tcpdump.kill()
-            print("Tcpdump ended")
-        try:
-            capture_file = os.path.join(CAPTURES_DIR, "macFloodCapture.pcap")
-            packets = readPcapFiltered(capture_file)
-            print(f"{len(packets)} packets were captured that were not addressed to this device")
-            print("The device is not protected")
-        except:
-            print("Penetration test did not capture any foreign packets")
+        processes.terminate_process(tcpdump, "Tcpdump")
+
+    try:
+        capture_file = os.path.join(CAPTURES_DIR, "rstpAttackCapture.pcap")
+        packets = readPcapFiltered(capture_file)
+        print(f"{len(packets)} packets were captured that were not addressed to this device")
+        print("The device is not protected")
+    except Exception:
+        print("Penetration test did not capture any foreign packets")
 
 # runRstpAttack("enx1c860b27ed4b")
